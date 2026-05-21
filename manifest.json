@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#7F77DD">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WW Invocations">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<title>WW — Calculateur d'invocations</title>
+<style>
+:root {
+  --bg: #ffffff; --bg2: #f5f5f7; --bg3: #e8e8ef;
+  --text: #1a1a1a; --text2: #6b6b6b; --border: #dcdce6;
+  --purple: #7F77DD; --purple-bg: #EEEDFE; --purple-dk: #3C3489; --purple-mid: #534AB7;
+  --green: #639922; --green-bg: #EAF3DE; --green-dk: #27500A;
+  --red: #D85A30; --red-bg: #FAECE7; --red-dk: #712B13;
+  --amber: #EF9F27; --amber-bg: #FAEEDA; --amber-dk: #633806;
+  --teal: #0F8B6C; --teal-bg: #E1F5EE; --teal-dk: #085041; --teal-border: #9FE1CB;
+  --r: 12px; --r-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#111113; --bg2:#1c1c20; --bg3:#26262c;
+    --text:#f0f0f2; --text2:#8e8e9a; --border:#2e2e36;
+    --purple-bg:#1e1b3a; --purple-dk:#a9a3f5; --purple-mid:#9490e8;
+    --green-bg:#162509; --green-dk:#8dc843;
+    --red-bg:#2a110a; --red-dk:#f28b6a;
+    --amber-bg:#2a1a00; --amber-dk:#f5b84a;
+    --teal-bg:#0a2620; --teal-dk:#3dd6a8; --teal-border:#1a5c48;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh}
+.app{max-width:600px;margin:0 auto;padding-bottom:32px}
+
+.header{background:var(--purple);color:#fff;padding:env(safe-area-inset-top,0) 16px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 14px);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(127,119,221,.35)}
+.header-icon{font-size:24px}
+.h-text{}
+.header-title{font-size:17px;font-weight:700;letter-spacing:-.02em}
+.header-sub{font-size:11px;opacity:.75;margin-top:1px}
+
+.section{padding:0 12px}
+.sec-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px}
+
+/* Banner */
+.banner-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.bc{border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s;user-select:none}
+.bc.active{border-color:var(--purple);background:var(--purple-bg)}
+.bc:active{opacity:.75}
+.bi{font-size:18px;color:var(--text2);margin-bottom:4px}
+.bc.active .bi{color:var(--purple)}
+.bn{font-size:13px;font-weight:600;color:var(--text)}
+.bs{font-size:11px;color:var(--text2);margin-top:1px}
+.badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;margin-top:5px}
+.b-purple{background:var(--purple-bg);color:var(--purple-dk)}
+.b-teal{background:var(--teal-bg);color:var(--teal-dk)}
+.b-amber{background:var(--amber-bg);color:var(--amber-dk)}
+
+/* Resources */
+.res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.res-box{background:var(--bg2);border-radius:var(--r);padding:12px;border:1px solid transparent}
+.res-box.coral-box{background:var(--teal-bg);border-color:var(--teal-border)}
+.res-label{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.res-label i{font-size:14px}
+.coral-box .res-label{color:var(--teal-dk)}
+.res-inp{width:100%;font-size:20px;font-weight:600;padding:4px 0;border:none;border-bottom:2px solid var(--border);border-radius:0;background:transparent;color:var(--text);-moz-appearance:textfield;outline:none}
+.res-inp:focus{border-bottom-color:var(--purple)}
+.res-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.coral-box .res-inp:focus{border-bottom-color:var(--teal)}
+.res-sub{font-size:11px;color:var(--text2);margin-top:5px}
+.coral-box .res-sub{color:var(--teal-dk)}
+
+/* Total */
+.total-box{background:var(--purple-bg);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(127,119,221,.2)}
+.total-label{font-size:13px;color:var(--purple-mid);font-weight:600;display:flex;align-items:center;gap:5px}
+.total-detail{font-size:11px;color:var(--purple-mid);margin-top:3px;opacity:.8}
+.total-val{font-size:26px;font-weight:700;color:var(--purple-dk);text-align:right}
+.total-eq{font-size:11px;color:var(--purple-mid);text-align:right;margin-top:2px}
+
+/* Pity */
+.pity-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pity-box{background:var(--bg2);border-radius:var(--r);padding:12px}
+.pity-label{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:8px}
+.pity-num-row{display:flex;align-items:baseline;gap:6px}
+.pity-inp{width:72px;font-size:24px;font-weight:700;padding:2px 0;border:none;border-bottom:2px solid var(--border);background:transparent;color:var(--text);-moz-appearance:textfield;outline:none}
+.pity-inp:focus{border-bottom-color:var(--purple)}
+.pity-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.pity-of{font-size:13px;color:var(--text2)}
+.guar-btns{display:flex;gap:6px;margin-top:6px}
+.guar-btn{flex:1;font-size:12px;font-weight:500;padding:6px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--bg);color:var(--text);cursor:pointer;transition:all .15s}
+.guar-btn:active{opacity:.7}
+.guar-btn.active-no{border-color:var(--purple);color:var(--purple)}
+.guar-btn.active-yes{border-color:var(--purple);background:var(--purple);color:#fff}
+.guar-status{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.4}
+
+/* Pity bar */
+.pity-bar-wrap{background:var(--bg2);border-radius:var(--r);padding:12px}
+.pity-bar-info{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:7px}
+.pity-track{height:10px;border-radius:5px;background:var(--bg3);overflow:hidden;position:relative}
+.pity-fill{height:100%;border-radius:5px;transition:width .3s,background .3s}
+.pity-marks{position:relative;height:16px;margin-top:4px}
+.pity-mark{position:absolute;font-size:10px;color:var(--text2);transform:translateX(-50%)}
+
+/* Tree */
+.tree{display:flex;flex-direction:column}
+.tnode{border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;background:var(--bg)}
+.tnode.hl{border-color:var(--purple);background:var(--purple-bg)}
+.tnode.warn{background:var(--amber-bg);border-color:var(--amber)}
+.tnode.ok{background:var(--green-bg);border-color:var(--green)}
+.tnode.danger{background:var(--red-bg);border-color:var(--red)}
+.nl{font-size:13px;font-weight:600}
+.tnode.hl .nl{color:var(--purple-dk)}
+.tnode.warn .nl{color:var(--amber-dk)}
+.tnode.ok .nl{color:var(--green-dk)}
+.tnode.danger .nl{color:var(--red-dk)}
+.ns{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4}
+.tnode.hl .ns{color:var(--purple-mid)}
+.tnode.warn .ns{color:var(--amber-dk);opacity:.8}
+.tnode.ok .ns{color:var(--green-dk);opacity:.8}
+.tnode.danger .ns{color:var(--red-dk);opacity:.8}
+.nv{font-size:16px;font-weight:600;margin-top:4px}
+.tnode.ok .nv{color:var(--green-dk)}
+.arr{display:flex;align-items:center;height:20px;gap:6px;color:var(--text2);font-size:11px}
+.arr-line{flex:1;height:0;border-top:1px dashed var(--border)}
+
+/* Summary */
+.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.sum-card{background:var(--bg2);border-radius:var(--r);padding:12px}
+.sum-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+.sum-val{font-size:22px;font-weight:700;color:var(--text)}
+.sum-unit{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* Scenarios */
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scen-card{border-radius:var(--r);padding:14px;border:1px solid var(--border)}
+.scen-card.best{background:var(--green-bg);border-color:var(--green)}
+.scen-card.worst{background:var(--red-bg);border-color:var(--red)}
+.scen-header{display:flex;align-items:center;gap:5px;margin-bottom:8px}
+.scen-icon{font-size:15px}
+.scen-card.best .scen-icon{color:var(--green-dk)}
+.scen-card.worst .scen-icon{color:var(--red-dk)}
+.scen-title{font-size:11px;font-weight:600;line-height:1.3}
+.scen-card.best .scen-title{color:var(--green-dk)}
+.scen-card.worst .scen-title{color:var(--red-dk)}
+.scen-big{font-size:42px;font-weight:800;line-height:1}
+.scen-card.best .scen-big{color:var(--green-dk)}
+.scen-card.worst .scen-big{color:var(--red-dk)}
+.scen-unit{font-size:13px;font-weight:600;display:block;margin-top:2px}
+.scen-card.best .scen-unit{color:var(--green)}
+.scen-card.worst .scen-unit{color:var(--red)}
+.scen-rows{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.scen-row{display:flex;justify-content:space-between;font-size:11px}
+.scen-card.best .scen-row{color:var(--green-dk)}
+.scen-card.worst .scen-row{color:var(--red-dk)}
+
+/* Tip */
+.tip{background:var(--bg2);border-radius:var(--r);padding:10px 12px;border-left:3px solid var(--purple);font-size:12px;color:var(--text2);line-height:1.5}
+.tip i{color:var(--purple);vertical-align:-2px;margin-right:4px}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:4px 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <i class="ti ti-galaxy header-icon"></i>
+    <div class="h-text">
+      <div class="header-title">WW Invocations</div>
+      <div class="header-sub">Calculateur Wuthering Waves</div>
+    </div>
+  </div>
+
+  <div class="section">
+
+    <div class="sec-label">Type de banner (Convene)</div>
+    <div class="banner-grid">
+      <div class="bc active" onclick="selectBanner('limited_char')" id="card-limited_char">
+        <div class="bi"><i class="ti ti-user-star"></i></div>
+        <div class="bn">Personnage limité</div>
+        <div class="bs">Event Convene</div>
+        <span class="badge b-purple">50/50</span>
+      </div>
+      <div class="bc" onclick="selectBanner('weapon_event')" id="card-weapon_event">
+        <div class="bi"><i class="ti ti-sword"></i></div>
+        <div class="bn">Arme limitée</div>
+        <div class="bs">Weapon Event</div>
+        <span class="badge b-teal">100% garanti</span>
+      </div>
+      <div class="bc" onclick="selectBanner('standard_char')" id="card-standard_char">
+        <div class="bi"><i class="ti ti-users"></i></div>
+        <div class="bn">Permanente perso</div>
+        <div class="bs">Permanent Convene</div>
+        <span class="badge b-amber">Pity séparé</span>
+      </div>
+      <div class="bc" onclick="selectBanner('novice')" id="card-novice">
+        <div class="bi"><i class="ti ti-sparkles"></i></div>
+        <div class="bn">Débutant</div>
+        <div class="bs">Novice Convene</div>
+        <span class="badge b-teal">50 pulls max</span>
+      </div>
+    </div>
+
+    <div class="sec-label">Mes ressources</div>
+    <div class="res-grid">
+      <div class="res-box">
+        <div class="res-label"><i class="ti ti-diamond"></i>Astrite</div>
+        <input type="number" class="res-inp" id="inp-astrite" min="0" value="0" placeholder="0" inputmode="numeric" oninput="update()">
+        <div class="res-sub" id="sub-astrite">= 0 pulls</div>
+      </div>
+      <div class="res-box">
+        <div class="res-label"><i class="ti ti-coin"></i>Lunites</div>
+        <input type="number" class="res-inp" id="inp-lunites" min="0" value="0" placeholder="0" inputmode="numeric" oninput="update()">
+        <div class="res-sub" id="sub-lunites">= 0 pulls</div>
+      </div>
+      <div class="res-box coral-box">
+        <div class="res-label"><i class="ti ti-droplet"></i>Corail Oscillant</div>
+        <input type="number" class="res-inp" id="inp-coral" min="0" value="0" placeholder="0" inputmode="numeric" oninput="update()">
+        <div class="res-sub" id="sub-coral">= 0 pulls (8 = 1 pull)</div>
+      </div>
+      <div class="res-box">
+        <div class="res-label"><i class="ti ti-ticket"></i>Tides</div>
+        <input type="number" class="res-inp" id="inp-tides" min="0" value="0" placeholder="0" inputmode="numeric" oninput="update()">
+        <div class="res-sub">1 Tide = 1 pull direct</div>
+      </div>
+    </div>
+
+    <div class="total-box" style="margin-top:8px">
+      <div>
+        <div class="total-label"><i class="ti ti-calculator" style="font-size:14px"></i>Total disponible</div>
+        <div class="total-detail" id="total-detail">Aucune ressource saisie</div>
+      </div>
+      <div>
+        <div class="total-val" id="total-pulls">0 pulls</div>
+        <div class="total-eq" id="total-eq">= 0 Astrite éq.</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Mon pity actuel</div>
+    <div class="pity-row">
+      <div class="pity-box">
+        <div class="pity-label">Pulls depuis dernier 5★</div>
+        <div class="pity-num-row">
+          <input type="number" class="pity-inp" id="inp-pity" min="0" max="80" value="0" inputmode="numeric" oninput="clampPity();update()">
+          <span class="pity-of" id="pity-of">/ 80</span>
+        </div>
+      </div>
+      <div class="pity-box">
+        <div class="pity-label">Garantie 50/50 ?</div>
+        <div class="guar-btns">
+          <button class="guar-btn active-no" id="btn-no" onclick="setGuarantee(false)">Non</button>
+          <button class="guar-btn" id="btn-yes" onclick="setGuarantee(true)">Oui ★</button>
+        </div>
+        <div class="guar-status" id="guar-status">50% chance perso limité</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Barre de pity</div>
+    <div class="pity-bar-wrap">
+      <div class="pity-bar-info">
+        <span id="pity-bar-left">0 / 80 pulls</span>
+        <span id="pity-bar-right">Soft pity : 66</span>
+      </div>
+      <div class="pity-track">
+        <div class="pity-fill" id="pity-fill" style="width:0%;background:var(--purple)"></div>
+      </div>
+      <div class="pity-marks" id="pity-marks"></div>
+    </div>
+
+    <div class="sec-label">Organigramme</div>
+    <div id="tree"></div>
+
+    <div class="sec-label" style="margin-top:20px">Résumé</div>
+    <div class="summary">
+      <div class="sum-card">
+        <div class="sum-label">Pulls disponibles</div>
+        <div class="sum-val" id="sum-dispo">0</div>
+        <div class="sum-unit">pulls</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Min pour 5★</div>
+        <div class="sum-val" id="sum-min">—</div>
+        <div class="sum-unit">pulls</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Max garanti</div>
+        <div class="sum-val" id="sum-max">—</div>
+        <div class="sum-unit">pulls</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Manquants</div>
+        <div class="sum-val" id="sum-missing">—</div>
+        <div class="sum-unit" id="sum-missing-u"></div>
+      </div>
+    </div>
+
+    <div id="scenario-section"></div>
+
+    <div class="tip" style="margin-top:8px">
+      <i class="ti ti-bulb"></i><span id="tip">Sélectionne un banner et saisis tes ressources.</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BANNERS={
+  limited_char:{hard:80,soft:66,has5050:true},
+  weapon_event:{hard:80,soft:66,has5050:false},
+  standard_char:{hard:80,soft:66,has5050:false},
+  novice:{hard:50,soft:40,has5050:false}
+};
+let currentBanner='limited_char';
+let guarantee=false;
+
+function selectBanner(k){
+  document.querySelectorAll('.bc').forEach(c=>c.classList.remove('active'));
+  document.getElementById('card-'+k).classList.add('active');
+  currentBanner=k;
+  const b=BANNERS[k];
+  document.getElementById('pity-of').textContent='/ '+b.hard;
+  const inp=document.getElementById('inp-pity');
+  inp.max=b.hard;
+  if(parseInt(inp.value)>b.hard)inp.value=b.hard;
+  if(k!=='limited_char')guarantee=false;
+  update();
+}
+
+function setGuarantee(v){
+  if(!BANNERS[currentBanner].has5050)return;
+  guarantee=v;update();
+}
+
+function clampPity(){
+  const inp=document.getElementById('inp-pity');
+  const b=BANNERS[currentBanner];
+  let v=parseInt(inp.value)||0;
+  if(v<0)v=0;if(v>b.hard)v=b.hard;
+  inp.value=v;
+}
+
+function num(id){return parseInt(document.getElementById(id).value)||0;}
+
+function update(){
+  const b=BANNERS[currentBanner];
+  const astrite=num('inp-astrite');
+  const lunites=num('inp-lunites');
+  const coral=num('inp-coral');
+  const tides=num('inp-tides');
+  const pity=num('inp-pity');
+
+  const pA=Math.floor(astrite/160);
+  const pL=Math.floor(lunites/160);
+  const pC=Math.floor(coral/8);
+  const total=pA+pL+pC+tides;
+
+  document.getElementById('sub-astrite').textContent='= '+pA+' pull'+(pA!==1?'s':'')+' (160 = 1 pull)';
+  document.getElementById('sub-lunites').textContent='= '+pL+' pull'+(pL!==1?'s':'')+' (160 = 1 pull)';
+  document.getElementById('sub-coral').textContent='= '+pC+' pull'+(pC!==1?'s':'')+' (8 = 1 pull)';
+
+  const parts=[];
+  if(astrite>0)parts.push(astrite.toLocaleString()+' Astrite');
+  if(lunites>0)parts.push(lunites.toLocaleString()+' Lunites');
+  if(coral>0)parts.push(coral.toLocaleString()+' Corail');
+  if(tides>0)parts.push(tides+' Tide'+(tides>1?'s':''));
+  document.getElementById('total-detail').textContent=parts.length?parts.join(' + '):'Aucune ressource saisie';
+  document.getElementById('total-pulls').textContent=total+' pull'+(total!==1?'s':'');
+  document.getElementById('total-eq').textContent='= '+(total*160).toLocaleString()+' Astrite éq.';
+
+  const remaining=b.hard-pity;
+  let maxG=remaining;
+  if(b.has5050&&!guarantee)maxG=remaining+b.hard;
+
+  document.getElementById('sum-dispo').textContent=total;
+  document.getElementById('sum-min').textContent=Math.max(1,remaining);
+  document.getElementById('sum-max').textContent=maxG;
+
+  const missing=maxG-total;
+  const sm=document.getElementById('sum-missing');
+  const smu=document.getElementById('sum-missing-u');
+  if(missing<=0){sm.textContent='✓';sm.style.color='var(--green-dk)';smu.textContent='ok !';}
+  else{sm.textContent=missing;sm.style.color='var(--red-dk)';smu.textContent='pulls manquants';}
+
+  updatePityBar(pity,b);
+  updateGuaranteeBtn(b);
+  renderTree(pity,b,guarantee,total,remaining,maxG);
+  renderScenarios(total,pity,b,guarantee,coral);
+  updateTip(pity,b,guarantee,total,remaining,missing,coral);
+}
+
+function updatePityBar(pity,b){
+  const pct=Math.round((pity/b.hard)*100);
+  const fill=document.getElementById('pity-fill');
+  fill.style.width=pct+'%';
+  fill.style.background=pity>=b.hard-5?'var(--red)':pity>=b.soft?'var(--amber)':'var(--purple)';
+  document.getElementById('pity-bar-left').textContent=pity+' / '+b.hard+' pulls';
+  document.getElementById('pity-bar-right').textContent='Soft pity : '+b.soft;
+  const marks=document.getElementById('pity-marks');marks.innerHTML='';
+  [{v:b.soft,l:'Soft'},{v:b.hard,l:'Hard'}].forEach(m=>{
+    const el=document.createElement('span');
+    el.className='pity-mark';el.style.left=((m.v/b.hard)*100)+'%';
+    el.textContent=m.l+' ('+m.v+')';marks.appendChild(el);
+  });
+}
+
+function updateGuaranteeBtn(b){
+  const btnNo=document.getElementById('btn-no');
+  const btnYes=document.getElementById('btn-yes');
+  const gs=document.getElementById('guar-status');
+  if(!b.has5050){
+    btnNo.disabled=true;btnYes.disabled=true;
+    btnNo.style.opacity='.35';btnYes.style.opacity='.35';
+    btnNo.className='guar-btn';btnYes.className='guar-btn';
+    gs.textContent='Pas de 50/50 sur ce banner';return;
+  }
+  btnNo.disabled=false;btnYes.disabled=false;
+  btnNo.style.opacity='1';btnYes.style.opacity='1';
+  if(guarantee){
+    btnNo.className='guar-btn';
+    btnYes.className='guar-btn active-yes';
+    gs.textContent='★ Prochain 5★ = personnage limité garanti';
+  } else {
+    btnNo.className='guar-btn active-no';
+    btnYes.className='guar-btn';
+    gs.textContent='50% chance d\'obtenir le perso limité';
+  }
+}
+
+function renderTree(pity,b,guar,total,remaining,maxG){
+  const inSoft=pity>=b.soft;
+  const rows=[];
+  rows.push({label:'Départ',sub:'Pity actuel : '+pity+' / '+b.hard,cls:inSoft?'warn':'hl'});
+  if(inSoft){
+    rows.push({arr:'↓',label:'Soft pity actif',sub:'Taux 5★ augmente à chaque pull',cls:'warn'});
+  } else {
+    rows.push({arr:'↓',label:'Zone normale — taux 0,8%',sub:'Soft pity dans '+(b.soft-pity)+' pull'+(b.soft-pity>1?'s':''),cls:''});
+    rows.push({arr:'↓',label:'Soft pity — pull '+b.soft,sub:'Taux augmente progressivement',cls:'warn'});
+  }
+  rows.push({arr:'↓',label:'Hard pity — pull '+b.hard,sub:'Encore '+remaining+' pull'+(remaining>1?'s':'')+' à faire',cls:remaining<=10?'danger':''});
+  if(b.has5050){
+    if(guar){
+      rows.push({arr:'↓',label:'Garantie 50/50 active',sub:'Tu avais perdu avant',cls:'ok',val:'100% personnage limité'});
+    } else {
+      rows.push({arr:'↓',label:'50/50',sub:'Win → limité / Lose → standard',cls:''});
+      rows.push({arr:'↓ si lose',label:'Pity reporté au banner suivant',sub:'Prochain 5★ = limité garanti',cls:'ok',val:'Max '+b.hard+' pulls de plus'});
+    }
+  } else if(currentBanner==='weapon_event'){
+    rows.push({arr:'↓',label:'Arme limitée garantie',sub:'Pas de 50/50 pour les armes',cls:'ok',val:'100% arme featured'});
+  } else {
+    rows.push({arr:'↓',label:'5★ garanti',sub:currentBanner==='novice'?'Une seule fois disponible':'1 perso aléatoire parmi 5',cls:'ok'});
+  }
+  const ok=total>=remaining;
+  rows.push({arr:'↓',label:ok?'Ressources suffisantes':'Ressources insuffisantes',sub:ok?'Tu peux atteindre le hard pity':'Manque '+(remaining-total)+' pulls ('+ ((remaining-total)*160).toLocaleString()+' Astrite)',cls:ok?'ok':'danger'});
+
+  let html='<div class="tree">';
+  rows.forEach(r=>{
+    if(r.arr)html+=`<div class="arr"><div class="arr-line"></div><span>${r.arr}</span><div class="arr-line"></div></div>`;
+    html+=`<div class="tnode ${r.cls||''}"><div class="nl">${r.label}</div><div class="ns">${r.sub}</div>${r.val?`<div class="nv">${r.val}</div>`:''}</div>`;
+  });
+  html+='</div>';
+  document.getElementById('tree').innerHTML=html;
+}
+
+function simulate(pullsLeft,currentPity,hasG,winAll,b){
+  let chars=0,pulls=pullsLeft,pNow=currentPity,gNow=hasG;
+  while(pulls>0){
+    const cost=b.hard-pNow;
+    if(pulls<cost)break;
+    pulls-=cost;pNow=0;
+    if(gNow){chars++;gNow=false;}
+    else if(winAll){chars++;gNow=false;}
+    else{gNow=true;}
+  }
+  return chars;
+}
+
+function renderScenarios(total,pity,b,guar,coral){
+  const sec=document.getElementById('scenario-section');
+  if(currentBanner!=='limited_char'){sec.innerHTML='';return;}
+  const remaining=b.hard-pity;
+  const best=simulate(total,pity,guar,true,b);
+  const worst=simulate(total,pity,guar,false,b);
+
+  if(best===0&&worst===0){
+    sec.innerHTML=`<div class="sec-label">Personnages 5★ limités obtenables</div>
+    <div class="tnode danger"><div class="nl">Ressources insuffisantes</div>
+    <div class="ns">Il faut au minimum ${b.has5050&&!guar?remaining+b.hard:remaining} pulls pour obtenir un personnage limité.</div></div>`;
+    return;
+  }
+
+  const bestPullsUsed=best>0?(b.hard-pity)+(best-1)*b.hard:0;
+  const worstPullsUsed=worst>0?guar?(b.hard-pity)+(worst-1)*b.hard*2:(b.hard-pity+b.hard)+(worst-1)*b.hard*2:0;
+
+  sec.innerHTML=`
+  <div class="sec-label">Personnages 5★ limités obtenables</div>
+  <div class="scenario-grid">
+    <div class="scen-card best">
+      <div class="scen-header">
+        <i class="ti ti-star scen-icon"></i>
+        <span class="scen-title">Tous les 50/50 gagnés</span>
+      </div>
+      <div class="scen-big">${best}</div>
+      <span class="scen-unit">perso${best>1?'s':''} limité${best>1?'s':''}</span>
+      <div class="scen-rows">
+        <div class="scen-row"><span>Pulls utilisés</span><span>${Math.min(total,bestPullsUsed)} / ${total}</span></div>
+        <div class="scen-row"><span>Coût moy./perso</span><span>~${best>0?Math.round(bestPullsUsed/best):b.hard} pulls</span></div>
+        <div class="scen-row"><span>50/50 gagnés</span><span>${best}</span></div>
+      </div>
+    </div>
+    <div class="scen-card worst">
+      <div class="scen-header">
+        <i class="ti ti-shield-x scen-icon"></i>
+        <span class="scen-title">Tous les 50/50 perdus</span>
+      </div>
+      <div class="scen-big">${worst}</div>
+      <span class="scen-unit">perso${worst>1?'s':''} limité${worst>1?'s':''}</span>
+      <div class="scen-rows">
+        <div class="scen-row"><span>Pulls utilisés</span><span>${Math.min(total,worstPullsUsed)} / ${total}</span></div>
+        <div class="scen-row"><span>Coût moy./perso</span><span>~${worst>0?Math.round(worstPullsUsed/worst):b.hard*2} pulls</span></div>
+        <div class="scen-row"><span>50/50 perdus</span><span>${worst}</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateTip(pity,b,guar,total,remaining,missing,coral){
+  const coralRem=coral%8;
+  let t='';
+  if(currentBanner==='novice') t='Banner débutant : -20% de réduction. 5★ garanti en 50 pulls max, disponible une seule fois.';
+  else if(b.has5050&&!guar) t='Pour garantir le perso limité : '+(remaining+b.hard)+' pulls max soit '+((remaining+b.hard)*160).toLocaleString()+' Astrite éq.';
+  else if(b.has5050&&guar) t='Garantie active ! Le prochain 5★ sera le personnage limité en '+remaining+' pulls max.';
+  else if(currentBanner==='weapon_event') t='Arme limitée : garanti sans 50/50 en '+remaining+' pulls max.';
+  else t='Banner permanent : 5★ garanti en '+remaining+' pulls. Pity indépendant du banner limité.';
+  if(pity>=b.soft) t+=' 🔥 Soft pity actif !';
+  if(coralRem>0) t+=' Il reste '+coralRem+' corail inutilisé ('+(8-coralRem)+' de plus pour 1 pull).';
+  document.getElementById('tip').textContent=t;
+}
+
+// Register service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+update();
+</script>
+</body>
+</html>
